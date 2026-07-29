@@ -126,19 +126,30 @@ from bs4 import BeautifulSoup
 # print(res.find_next_sibling().text)
 
 url = "https://quotes.toscrape.com/"
-res = requests.get(url)
-soup = BeautifulSoup(res.text,"html.parser")
-print(res.status_code)
-print(soup.title.text)
-quotes = soup.find_all(class_="quote")
-for q in quotes:
-    text = q.find(class_="text").text
-    author = q.find(class_="author").text
-    print(text)
-    print(author)
-    tags = soup.find_all(class_="tag")
-    for tag in tags:
-        print(tag.text)
-    print("*"*40)
+# res = requests.get(url)  for single page
+# soup = BeautifulSoup(res.text,"html.parser")
+# print(res.status_code)
+# print(soup.title.text)
+# quotes = soup.find_all(class_="quote")
+# for q in quotes:
+#     text = q.find(class_="text").text
+#     author = q.find(class_="author").text
+#     print(text)
+#     print(author)
+#     tags = soup.find_all(class_="tag")
+#     for tag in tags:
+#         print(tag.text)
+#     print("*"*40)
+count = 0
+while url:
+    count+=1
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text,"html.parser")
+    print(count," " ,soup.title.text)
+    next_page=soup.find(class_="next")
+    if next_page:
+        url="https://quotes.toscrape.com"+next_page.find("a")["href"]
+    else:
+        url=None
 
 
