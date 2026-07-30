@@ -1,6 +1,7 @@
 
 import requests
 from bs4 import BeautifulSoup
+import csv
 
 # url = "https://www.example.com"
 # res = requests.get(url,timeout=10)
@@ -125,7 +126,7 @@ from bs4 import BeautifulSoup
 # print(res.find_previous_sibling().text)
 # print(res.find_next_sibling().text)
 
-url = "https://quotes.toscrape.com/"
+# url = "https://quotes.toscrape.com/"
 # res = requests.get(url)  for single page
 # soup = BeautifulSoup(res.text,"html.parser")
 # print(res.status_code)
@@ -140,16 +141,57 @@ url = "https://quotes.toscrape.com/"
 #     for tag in tags:
 #         print(tag.text)
 #     print("*"*40)
-count = 0
+# count = 0
+# while url:
+#     count+=1
+#     res = requests.get(url)
+#     soup = BeautifulSoup(res.text,"html.parser")
+#     print(count," " ,soup.title.text)
+#     next_page=soup.find(class_="next")
+#     if next_page:
+#         url="https://quotes.toscrape.com"+next_page.find("a")["href"]
+#     else:
+#         url=None
+
+url="https://quotes.toscrape.com/"
+
+all_quotes = []
+
 while url:
-    count+=1
     res = requests.get(url)
     soup = BeautifulSoup(res.text,"html.parser")
-    print(count," " ,soup.title.text)
-    next_page=soup.find(class_="next")
+    quotes=soup.find_all(class_="quote")
+    next_page = soup.find(class_="next")
+    for quote in quotes:
+        text = quote.find(class_="text").text
+        author = quote.find(class_="author").text
+        tags=[]
+        for tag in quote.find_all(class_="tag"):
+            tags.append(tag.text)
+        all_quotes.append({
+            "quote" : text,
+            "author" : author,
+            "tags" : tags
+        })
     if next_page:
         url="https://quotes.toscrape.com"+next_page.find("a")["href"]
     else:
-        url=None
+        url = None
+with open("quotes.csv","w",newline="",encoding="utf-8") as file:
+    writer=csv.writer(file)
+    writer.writerow(["Quote","Author","Tags"])
+    for quote in all_quotes:
+        writer.writerow([
+            quote["quote"],
+            quote["author"],
+            ", ".join(quote["tags"])
+        ])
+
+print("CSV file created successfully")
+
+
+
+
+
 
 
